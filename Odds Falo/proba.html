@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gombok és Tartalom Szűrése</title>
+    <style>
+        /* Alap stílusok */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        /* Gombok középre igazítása */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 50px;
+        }
+        
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid #333;
+            background-color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .button-container button:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Szűrt tartalom megjelenítése */
+        .content {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .content div {
+            width: 150px;
+            height: 150px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Rejtett tartalom a szűrőkhöz */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="button-container">
+        <button onclick="filterContent('all')">Mind</button>
+        <button onclick="filterContent('category1')">Kategória 1</button>
+        <button onclick="filterContent('category2')">Kategória 2</button>
+        <button onclick="filterContent('category3')">Kategória 3</button>
+        <button onclick="filterContent('category4')">Kategória asd</button>
+    </div>
+
+    <div class="content">
+        <div class="category1">Kategória 1 - Elem 1</div>
+        <div class="category2">Kategória 2 - Elem 2</div>
+        <div class="category3">Kategória 3 - Elem 3</div>
+        <div class="category4">Kategória 4 - Elem 4</div>
+        <div class="category1">Kategória 1 - Elem 2</div>
+        <div class="category2">Kategória 2 - Elem 3</div>
+        <div class="category3">Kategória 3 - Elem 4</div>
+        <div class="category4">Kategória 4 - Elem 5</div>
+    </div>
+
+    <script>
+        // A filterContent függvény a megfelelő tartalmat jeleníti meg, vagy elrejti azt
+        function filterContent(category) {
+            const allContent = document.querySelectorAll('.content div');
+            
+            allContent.forEach(item => {
+                // Ha "all" kategóriát választunk, akkor az összes elem látszik
+                if (category === 'all') {
+                    item.classList.remove('hidden');
+                } else {
+                    // Ha az elem tartalmazza a kategóriát, akkor látható
+                    if (item.classList.contains(category)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // Az oldal betöltődésekor mindent mutassunk
+        window.onload = function() {
+            filterContent('all');
+        };
+    </script>
+
+</body>
+</html>

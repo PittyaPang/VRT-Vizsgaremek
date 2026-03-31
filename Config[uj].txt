@@ -129,10 +129,26 @@ ip access-list standard PAT-ACL
  permit 172.16.11.0 0.0.0.255
  permit 172.16.20.0 0.0.0.127
  permit 172.16.21.0 0.0.0.255
-ip access-list extended ICMP_LIMIT
- permit icmp 172.16.66.0 0.0.0.255 host 90.90.90.90 echo
- deny icmp any host 90.90.90.90 echo
- permit ip any any
+ip access-list extended EDGE-INBOUND
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 255.255.255.255 0.0.0.0 any
+ permit gre any any
+ permit tcp any any eq 80
+ permit tcp any any eq 443
+ permit tcp any any eq 22
+ permit udp any any eq 53
+ permit tcp any any eq 53
+ permit icmp any any echo-reply
+ permit icmp any any unreachable
+ permit icmp any any ttl-exceeded 
+int ser0/0/0 
+ip access-group EDGE-INBOUND in
 ip access-list extended SSH
  permit tcp 172.16.66.0 0.0.0.255 host 90.90.90.90 eq 22
  deny ip any any
@@ -183,7 +199,6 @@ route outside 0.0.0.0 0.0.0.0 30.30.30.1 1
 ipv6 route outside 2001:DB8:3::/64 2001:DB8:1::1
 ipv6 route outside 2001:DB8:4::/64 2001:DB8:1::1
 ipv6 route outside 2001:DB8:66::/64 2001:DB8:1::1
-access-list OUTSIDE-IN extended permit tcp 172.16.66.0 255.255.255.0 any eq 22
 access-list OUTSIDE-IN extended permit ip 172.16.66.0 255.255.255.0 192.168.1.0 255.255.255.0
 access-list OUTSIDE-IN extended permit tcp 172.16.10.0 255.255.255.128 host 192.168.1.2 eq www
 access-list OUTSIDE-IN extended permit tcp 172.16.11.0 255.255.255.0 host 192.168.1.2 eq www
@@ -233,18 +248,11 @@ access-list OUTSIDE-IN extended permit udp 172.16.41.0 255.255.255.0 host 192.16
 access-list OUTSIDE-IN extended permit udp 172.16.46.0 255.255.255.0 host 192.168.1.4 eq tftp
 access-list OUTSIDE-IN extended permit udp 172.16.36.0 255.255.255.0 host 192.168.1.4 eq tftp
 access-list OUTSIDE-IN extended permit udp 172.16.66.0 255.255.255.0 host 192.168.1.4 eq tftp
-access-list OUTSIDE-IN extended permit tcp 172.16.10.0 255.255.255.128 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.11.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.20.0 255.255.255.128 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.21.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.30.0 255.255.255.192 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.31.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.40.0 255.255.255.128 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.40.128 255.255.255.248 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.41.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.46.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.36.0 255.255.255.0 host 192.168.1.3 eq 49
-access-list OUTSIDE-IN extended permit tcp 172.16.66.0 255.255.255.0 host 192.168.1.3 eq 49
+access-list OUTSIDE-IN extended permit udp 172.16.66.0 255.255.255.0 host 192.168.1.3 eq 1645
+access-list OUTSIDE-IN extended permit udp 172.16.36.0 255.255.255.0 host 192.168.1.3 eq 1645
+access-list OUTSIDE-IN extended permit udp 172.16.46.0 255.255.255.0 host 192.168.1.3 eq 1645
+access-list OUTSIDE-IN extended permit udp host 10.10.10.2 host 192.168.1.3 eq 1645
+access-list OUTSIDE-IN extended permit udp host 20.20.20.2 host 192.168.1.3 eq 1645
 access-list OUTSIDE-IN extended permit tcp 172.16.10.0 255.255.255.128 host 192.168.1.8 eq domain
 access-list OUTSIDE-IN extended permit udp 172.16.10.0 255.255.255.128 host 192.168.1.8 eq domain
 access-list OUTSIDE-IN extended permit tcp 172.16.11.0 255.255.255.0 host 192.168.1.8 eq domain
@@ -269,10 +277,13 @@ access-list OUTSIDE-IN extended permit tcp 172.16.36.0 255.255.255.0 host 192.16
 access-list OUTSIDE-IN extended permit udp 172.16.36.0 255.255.255.0 host 192.168.1.8 eq domain
 access-list OUTSIDE-IN extended permit tcp 172.16.66.0 255.255.255.0 host 192.168.1.8 eq domain
 access-list OUTSIDE-IN extended permit udp 172.16.66.0 255.255.255.0 host 192.168.1.8 eq domain
+access-list OUTSIDE-IN extended permit tcp 172.16.66.0 255.255.255.0 any eq 22
+access-list OUTSIDE-IN extended permit tcp 2001:DB8:66::/64 any eq 22
+access-list OUTSIDE-IN extended permit icmp6 2001:DB8:66::/64 any echo-reply
 access-list OUTSIDE-IN extended permit tcp any host 30.30.30.2 eq www
 access-list OUTSIDE-IN extended permit tcp any host 30.30.30.2 eq 443
-!
 access-group OUTSIDE-IN in interface outside
+
 aaa authentication ssh console LOCAL
 username admin password passw0rd
 policy-map type inspect dns preset_dns_map
@@ -298,7 +309,7 @@ conf t
 sdm prefer dual-ipv4-and-ipv6 default 
 do w
 exit
-relode
+reload
 ipv6 unicast-routing
 service timestamps log datetime msec
 ip domain-name upwards.local
@@ -307,7 +318,7 @@ hostname Main_R1
 ip routing
 no ip domain-lookup
 spanning-tree mode pvst
-spanning-tree vlan 10-17,20-27,66 priority 24576
+spanning-tree vlan 10-17,20-27,66 root primary 
 !
 interface Port-channel1
  switchport trunk native vlan 66
@@ -371,6 +382,7 @@ interface GigabitEthernet0/2
  ip access-group LAN_TRAFFIC_LIMIT in
 !
 interface Vlan10
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 10 konyvelo
  ip address 172.16.10.76 255.255.255.240
  ip helper-address 192.168.1.7
@@ -379,6 +391,7 @@ interface Vlan10
  standby 10 preempt
 !
 interface Vlan11
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 11 dolgozo
  ip address 172.16.10.44 255.255.255.240
  ip helper-address 192.168.1.7
@@ -387,6 +400,7 @@ interface Vlan11
  standby 11 preempt
 !
 interface Vlan12
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 12 gazd_dolgozo
  ip address 172.16.10.60 255.255.255.240
  ip helper-address 192.168.1.7
@@ -395,6 +409,7 @@ interface Vlan12
  standby 12 preempt
 !
 interface Vlan13
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 13 ugyfel_szolg
  ip address 172.16.10.28 255.255.255.224
  ip helper-address 192.168.1.7
@@ -403,6 +418,7 @@ interface Vlan13
  standby 13 preempt
 !
 interface Vlan14
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 14 hr
  ip address 172.16.10.92 255.255.255.240
  ip helper-address 192.168.1.7
@@ -411,6 +427,7 @@ interface Vlan14
  standby 14 preempt
 !
 interface Vlan15
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 15 informatikus
  ip address 172.16.10.116 255.255.255.248
  ip helper-address 192.168.1.7
@@ -419,6 +436,7 @@ interface Vlan15
  standby 15 preempt
 !
 interface Vlan16
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 16 vezetoseg
  ip address 172.16.10.108 255.255.255.240
  ip helper-address 192.168.1.7
@@ -427,6 +445,7 @@ interface Vlan16
  standby 16 preempt
 !
 interface Vlan17
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 17 dolgozoi wifi
  ip address 172.16.11.252 255.255.255.0
  ip helper-address 192.168.1.7
@@ -435,6 +454,7 @@ interface Vlan17
  standby 17 preempt
 !
 interface Vlan20
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 20 konyvelo pezugyes
  ip address 172.16.20.28 255.255.255.240
  ip helper-address 192.168.1.7
@@ -443,6 +463,7 @@ interface Vlan20
  standby 20 preempt
 !
 interface Vlan21
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 21 marketing pr
  ip address 172.16.20.44 255.255.255.240
  ip helper-address 192.168.1.7
@@ -451,6 +472,7 @@ interface Vlan21
  standby 21 preempt
 !
 interface Vlan22
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 22 webfejleszto
  ip address 172.16.20.68 255.255.255.248
  ip helper-address 192.168.1.7
@@ -459,6 +481,7 @@ interface Vlan22
  standby 22 preempt
 !
 interface Vlan23
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 23 tartalomkurator
  ip address 172.16.20.60 255.255.255.240
  ip helper-address 192.168.1.7
@@ -467,6 +490,7 @@ interface Vlan23
  standby 23 preempt
 !
 interface Vlan24
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 24 arculattervezo
  ip address 172.16.20.76 255.255.255.248
  ip helper-address 192.168.1.7
@@ -475,6 +499,7 @@ interface Vlan24
  standby 24 preempt
 !
 interface Vlan25
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 25 vezetoseg
  ip address 172.16.20.12 255.255.255.240
  ip helper-address 192.168.1.7
@@ -483,6 +508,7 @@ interface Vlan25
  standby 25 preempt
 !
 interface Vlan26
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 26 informatikus
  ip address 172.16.20.84 255.255.255.248
  ip helper-address 192.168.1.7
@@ -491,6 +517,7 @@ interface Vlan26
  standby 26 preempt
 !
 interface Vlan27
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 27 dolgozoi wifi
  ip address 172.16.21.252 255.255.255.0
  ip helper-address 192.168.1.7
@@ -507,6 +534,9 @@ interface Vlan66
  ipv6 enable
  ipv6 ospf 200 area 10
  standby version 2
+ standby 67 ip 172.16.66.253
+ standby 67 priority 150
+ standby 67 preempt
  standby 66 ipv6 autoconfig 
  standby 66 priority 150
  standby 66 preempt
@@ -551,6 +581,13 @@ router ospf 100
  network 172.16.66.0 0.0.0.255 area 10
  network 20.20.20.0 0.0.0.3 area 10
 ip access-list extended LAN_TRAFFIC_LIMIT
+ permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.252 echo
+ permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.254 echo
+ permit icmp 172.16.66.0 0.0.0.255 10.10.10.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 20.20.20.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 30.30.30.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 100.100.100.0 0.0.0.255 echo 
+ permit icmp 172.16.66.0 0.0.0.255 200.200.200.0 0.0.0.255 echo
  permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.252 echo
  permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.254 echo
  deny ip 172.16.10.0 0.0.0.127 172.16.20.0 0.0.0.127
@@ -616,6 +653,12 @@ ntp update-calendar
 aaa new-model
 aaa authentication login AAA group radius local-case
 radius-server host 192.168.1.3 key Passw0rd
+ip access-list standard SSH
+ permit 172.16.66.0 0.0.0.255
+ deny any
+ip default-gateway 10.10.10.1
+ip route 192.168.1.0 255.255.255.0 10.10.10.1
+ip route 192.168.1.0 255.255.255.0 20.20.20.1
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 MAIN_R2 [L3 Switch conf]
@@ -625,15 +668,15 @@ conf t
 sdm prefer dual-ipv4-and-ipv6 default 
 do w
 exit
-relode
+reload
 service timestamps log datetime msec
 ip domain-name upwards.local
 username admin password admin
-hostname Main_R1
+hostname Main_R2
 ip routing
 no ip domain-lookup
 spanning-tree mode pvst
-spanning-tree vlan 10-17,20-27,66 priority 24576
+spanning-tree vlan 10-17,20-27,66 root secondary
 !
 interface Port-channel1
  switchport trunk native vlan 66
@@ -696,107 +739,131 @@ interface GigabitEthernet0/2
  ip access-group LAN_TRAFFIC_LIMIT in
 !
 interface Vlan10
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 10 konyvelo
- ip address 172.16.10.76 255.255.255.240
+ ip address 172.16.10.78 255.255.255.240
  ip helper-address 192.168.1.7
  standby 10 ip 172.16.10.77
 !
 interface Vlan11
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 11 dolgozo
- ip address 172.16.10.44 255.255.255.240
+ ip address 172.16.10.46 255.255.255.240
  ip helper-address 192.168.1.7
  standby 11 ip 172.16.10.45
 !
 interface Vlan12
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 12 gazd_dolgozo
- ip address 172.16.10.60 255.255.255.240
+ ip address 172.16.10.62 255.255.255.240
  ip helper-address 192.168.1.7
  standby 12 ip 172.16.10.61
 !
 interface Vlan13
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 13 ugyfel_szolg
- ip address 172.16.10.28 255.255.255.224
+ ip address 172.16.10.30 255.255.255.224
  ip helper-address 192.168.1.7
  standby 13 ip 172.16.10.29
 !
 interface Vlan14
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 14 hr
- ip address 172.16.10.92 255.255.255.240
+ ip address 172.16.10.94 255.255.255.240
  ip helper-address 192.168.1.7
  standby 14 ip 172.16.10.93
 !
 interface Vlan15
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 15 informatikus
- ip address 172.16.10.116 255.255.255.248
+ ip address 172.16.10.118 255.255.255.248
  ip helper-address 192.168.1.7
  standby 15 ip 172.16.10.117
 !
 interface Vlan16
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 16 vezetoseg
- ip address 172.16.10.108 255.255.255.240
+ ip address 172.16.10.110 255.255.255.240
  ip helper-address 192.168.1.7
  standby 16 ip 172.16.10.109
 !
 interface Vlan17
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 17 dolgozoi wifi
- ip address 172.16.11.252 255.255.255.0
+ ip address 172.16.11.254 255.255.255.0
  ip helper-address 192.168.1.7
  standby 17 ip 172.16.11.253
 !
 interface Vlan20
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 20 konyvelo pezugyes
- ip address 172.16.20.28 255.255.255.240
+ ip address 172.16.20.30 255.255.255.240
  ip helper-address 192.168.1.7
  standby 20 ip 172.16.20.29
 !
 interface Vlan21
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 21 marketing pr
- ip address 172.16.20.44 255.255.255.240
+ ip address 172.16.20.46 255.255.255.240
  ip helper-address 192.168.1.7
  standby 21 ip 172.16.20.45
 !
 interface Vlan22
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 22 webfejleszto
- ip address 172.16.20.68 255.255.255.248
+ ip address 172.16.20.70 255.255.255.248
  ip helper-address 192.168.1.7
  standby 22 ip 172.16.20.69
 !
 interface Vlan23
+ip access-group LAN_TRAFFIC_LIMIT in 
  description vlan 23 tartalomkurator
- ip address 172.16.20.60 255.255.255.240
+ ip address 172.16.20.62 255.255.255.240
  ip helper-address 192.168.1.7
  standby 23 ip 172.16.20.61
 !
 interface Vlan24
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 24 arculattervezo
- ip address 172.16.20.76 255.255.255.248
+ ip address 172.16.20.77 255.255.255.248
  ip helper-address 192.168.1.7
  standby 24 ip 172.16.20.77
 !
 interface Vlan25
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 25 vezetoseg
- ip address 172.16.20.12 255.255.255.240
+ ip address 172.16.20.14 255.255.255.240
  ip helper-address 192.168.1.7
  standby 25 ip 172.16.20.13
 !
 interface Vlan26
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 26 informatikus
- ip address 172.16.20.84 255.255.255.248
+ ip address 172.16.20.86 255.255.255.248
  ip helper-address 192.168.1.7
  standby 26 ip 172.16.20.85
 !
 interface Vlan27
+ip access-group LAN_TRAFFIC_LIMIT in
  description vlan 27 dolgozoi wifi
- ip address 172.16.21.252 255.255.255.0
+ ip address 172.16.21.254 255.255.255.0
  ip helper-address 192.168.1.7
  standby 27 ip 172.16.21.253
 !
 interface Vlan66
  description vlan 66 management rendszergazda
- ip address 172.16.66.252 255.255.255.0
+ mac-address 0007.ece5.6211
+ ip address 172.16.66.254 255.255.255.0
+ ip helper-address 172.16.66.251
  ip helper-address 192.168.1.7
- standby 66 ip 172.16.66.253
+ ipv6 address 2001:DB8:66::2/64
+ ipv6 enable
+ ipv6 ospf 200 area 10
+ standby version 2
+ standby 67 ip 172.16.66.253
+ standby 66 ipv6 autoconfig 
 !
+
 router ospf 100
  router-id 2.2.2.2
  log-adjacency-changes
@@ -838,6 +905,13 @@ router ospf 100
 ip access-list extended LAN_TRAFFIC_LIMIT
  permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.252 echo
  permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.254 echo
+ permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.252 echo
+ permit icmp 172.16.66.0 0.0.0.255 host 172.16.66.254 echo
+ permit icmp 172.16.66.0 0.0.0.255 10.10.10.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 20.20.20.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 30.30.30.0 0.0.0.3 echo 
+ permit icmp 172.16.66.0 0.0.0.255 100.100.100.0 0.0.0.255 echo 
+ permit icmp 172.16.66.0 0.0.0.255 200.200.200.0 0.0.0.255 echo
  deny ip 172.16.10.0 0.0.0.127 172.16.20.0 0.0.0.127
  deny ip 172.16.10.0 0.0.0.127 172.16.21.0 0.0.0.255
  deny ip 172.16.10.0 0.0.0.127 172.16.40.0 0.0.0.127
@@ -901,6 +975,12 @@ ntp update-calendar
 aaa new-model
 aaa authentication login AAA group radius local-case
 radius-server host 192.168.1.3 key Passw0rd
+ip access-list standard SSH
+ permit 172.16.66.0 0.0.0.255
+ deny any
+ip default-gateway 20.20.20.1
+ip route 192.168.1.0 255.255.255.0 20.20.20.1
+ip route 192.168.1.0 255.255.255.0 10.10.10.1
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 Netnovels_SW
@@ -1475,6 +1555,26 @@ ip access-list extended VPN_TRAFFIC_LIMIT_ODDSFALO
  deny icmp any host 172.16.11.253 echo
  deny icmp any host 172.16.11.252 echo
  permit ip any any
+ip access-list extended EDGE-INBOUND
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 255.255.255.255 0.0.0.0 any
+ permit gre any any
+ permit tcp any any eq 80
+ permit tcp any any eq 443
+ permit tcp any any eq 22
+ permit udp any any eq 53
+ permit tcp any any eq 53
+ permit icmp any any echo-reply
+ permit icmp any any unreachable
+ permit icmp any any ttl-exceeded 
+int ser0/0/0 
+ip access-group EDGE-INBOUND in
 ip access-list standard PAT-ACL
  permit 172.16.30.0 0.0.0.63
  permit 172.16.31.0 0.0.0.255
@@ -1811,6 +1911,26 @@ ip access-list extended VPN_TRAFFIC_LIMIT_NETNOVELS
  deny icmp any host 172.16.21.253 echo
  deny icmp any host 172.16.21.252 echo
  permit ip any any
+ip access-list extended EDGE-INBOUND
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 255.255.255.255 0.0.0.0 any
+ permit gre any any
+ permit tcp any any eq 80
+ permit tcp any any eq 443
+ permit tcp any any eq 22
+ permit udp any any eq 53
+ permit tcp any any eq 53
+ permit icmp any any echo-reply
+ permit icmp any any unreachable
+ permit icmp any any ttl-exceeded 
+int ser0/0/0 
+ip access-group EDGE-INBOUND in
 ip access-list standard PAT-ACL
  permit 172.16.40.0 0.0.0.127
  permit 172.16.40.128 0.0.0.7

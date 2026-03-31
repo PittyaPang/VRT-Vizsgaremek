@@ -1,0 +1,13 @@
+no ip domain-lookup
+h Router_UpWards
+int fa0/1
+ip add 10.10.10.1 255.255.255.252
+no sh 
+int fa0/0
+ip add 20.20.20.1 255.255.255.252
+no sh 
+router ospf 100
+router-id 4.4.4.4
+network 10.10.10.0 0.0.0.3 area 10
+network 20.20.20.0 0.0.0.3 area 10
+network 30.30.30.0 0.0.0.3 area 10

@@ -1,0 +1,226 @@
+hostname Main_R2
+no ip domain-lookup
+ip routing
+vlan 13
+vlan 11
+vlan 12
+vlan 10
+vlan 14
+vlan 16
+vlan 15
+vlan 17
+vlan 25
+vlan 20
+vlan 21
+vlan 23
+vlan 22
+vlan 24
+vlan 26
+vlan 27
+vlan 66
+interface vlan 10
+description vlan 10 konyvelo
+ip address 172.16.10.78 255.255.255.240
+ip helper-address 192.168.1.7
+standby 10 ip 172.16.10.77
+no sh 
+interface vlan 11
+description vlan 11 dolgozo
+ip address 172.16.10.46 255.255.255.240
+ip helper-address 192.168.1.7
+standby 11 ip 172.16.10.45
+no sh 
+interface vlan 12
+description vlan 12 gazd_dolgozo
+ip address 172.16.10.62 255.255.255.240
+ip helper-address 192.168.1.7
+standby 12 ip 172.16.10.61
+interface vlan 13
+no sh 
+description vlan 13 ugyfel_szolg
+ip address 172.16.10.30 255.255.255.224
+ip helper-address 192.168.1.7
+standby 13 ip 172.16.10.29
+interface vlan 14
+no sh 
+description vlan 14 hr
+ip address 172.16.10.94 255.255.255.240
+ip helper-address 192.168.1.7
+standby 14 ip 172.16.10.93
+interface vlan 15
+no sh 
+description vlan 15 informatikus
+ip address 172.16.10.118 255.255.255.248
+ip helper-address 192.168.1.7
+standby 15 ip 172.16.10.117
+interface vlan 16
+no sh 
+description vlan 16 vezetoseg
+ip address 172.16.10.110 255.255.255.240
+ip helper-address 192.168.1.7
+standby 16 ip 172.16.10.109
+interface vlan 17
+no sh 
+description vlan 17 dolgozoi wifi
+ip address 172.16.11.254 255.255.255.0
+ip helper-address 192.168.1.7
+standby 17 ip 172.16.11.253
+interface vlan 20
+no sh 
+description vlan 20 konyvelo pezugyes
+ip address 172.16.20.30 255.255.255.240
+ip helper-address 192.168.1.7
+standby 20 ip 172.16.20.29
+interface vlan 21
+no sh 
+description vlan 21 marketing pr
+ip address 172.16.20.46 255.255.255.240
+ip helper-address 192.168.1.7
+standby 21 ip 172.16.20.45
+interface vlan 22
+no sh 
+description vlan 22 webfejleszto
+ip address 172.16.20.70 255.255.255.248
+ip helper-address 192.168.1.7
+standby 22 ip 172.16.20.69
+interface vlan 23
+no sh 
+description vlan 23 tartalomkurator
+ip address 172.16.20.62 255.255.255.240
+ip helper-address 192.168.1.7
+standby 23 ip 172.16.20.61
+interface vlan 24
+no sh 
+description vlan 24 arculattervezo
+ip address 172.16.20.78 255.255.255.248
+ip helper-address 192.168.1.7
+standby 24 ip 172.16.20.77
+interface vlan 25
+no sh 
+description vlan 25 vezetoseg
+ip address 172.16.20.14 255.255.255.240
+ip helper-address 192.168.1.7
+standby 25 ip 172.16.20.13
+interface vlan 26
+no sh 
+description vlan 26 informatikus
+ip address 172.16.20.86 255.255.255.248
+ip helper-address 192.168.1.7
+standby 26 ip 172.16.20.85
+interface vlan 27
+no sh 
+description vlan 27 dolgozoi wifi
+ip address 172.16.21.254 255.255.255.0
+ip helper-address 192.168.1.7
+standby 27 ip 172.16.21.253
+interface vlan 66
+no sh 
+description vlan 66 management rendszergazda
+ip address 172.16.66.254 255.255.255.0
+ip helper-address 192.168.1.7
+standby 66 ip 172.16.66.253
+router ospf 100
+router-id 1.1.1.1
+network 20.20.20.0 0.0.0.3 area 10
+network 172.16.10.32 0.0.0.31 area 10
+network 172.16.10.48 0.0.0.15 area 10
+network 172.16.10.64 0.0.0.15 area 10
+network 172.16.10.80 0.0.0.15 area 10
+network 172.16.10.96 0.0.0.15 area 10
+network 172.16.10.112 0.0.0.7 area 10
+network 172.16.11.0 0.0.0.255 area 10
+network 172.16.20.0 0.0.0.255 area 10
+network 172.16.20.16 0.0.0.15 area 10
+network 172.16.20.32 0.0.0.15 area 10
+network 172.16.20.48 0.0.0.15 area 10
+network 172.16.20.64 0.0.0.7 area 10
+network 172.16.20.72 0.0.0.7 area 10
+network 172.16.20.80 0.0.0.7 area 10
+network 172.16.21.0 0.0.0.255 area 10
+network 172.16.66.0 0.0.0.255 area 10
+network 30.30.30.0 0.0.0.3 area 10
+passive-interface vlan 13
+passive-interface vlan 11
+passive-interface vlan 12
+passive-interface vlan 10
+passive-interface vlan 14
+passive-interface vlan 16
+passive-interface vlan 15
+passive-interface vlan 17
+passive-interface vlan 25
+passive-interface vlan 20
+passive-interface vlan 21
+passive-interface vlan 23
+passive-interface vlan 22
+passive-interface vlan 24
+passive-interface vlan 26
+passive-interface vlan 27
+passive-interface vlan 66
+int eth0/2
+sw tr encapsulation dot1q
+sw m tr 
+sw tr al v 10-17,20-27,66
+sw tr n v 66
+no sh
+int eth1/0
+sw tr encapsulation dot1q
+sw m tr
+sw tr al v 10-17,20-27,66
+sw tr n v 66
+no sh 
+int eth0/0
+duplex full
+no sw
+ip add 20.20.20.2 255.255.255.252
+no sh 
+interface vlan 10
+standby 10 priority 150
+standby 10 preempt
+interface vlan 11
+standby 11 priority 150
+standby 11 preempt
+interface vlan 12
+standby 12 priority 150
+standby 12 preempt
+interface vlan 13
+standby 13 priority 150
+standby 13 preempt
+interface vlan 14
+standby 14 priority 150
+standby 14 preempt
+interface vlan 15
+standby 15 priority 150
+standby 15 preempt
+interface vlan 16
+standby 16 priority 150
+standby 16 preempt
+interface vlan 17
+standby 17 priority 150
+standby 17 preempt
+interface vlan 20
+standby 20 priority 150
+standby 20 preempt
+interface vlan 21
+standby 21 priority 150
+standby 21 preempt
+interface vlan 22
+standby 22 priority 150
+standby 22 preempt
+interface vlan 23
+standby 23 priority 150
+standby 23 preempt
+interface vlan 24
+standby 24 priority 150
+standby 24 preempt
+interface vlan 25
+standby 25 priority 150
+standby 25 preempt
+interface vlan 26
+standby 26 priority 150
+standby 26 preempt
+interface vlan 27
+standby 27 priority 150
+standby 27 preempt
+interface vlan 66
+standby 66 priority 150
+standby 66 preempt
